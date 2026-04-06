@@ -1,0 +1,56 @@
+# AI Interview Prep App Setup
+
+## Prerequisites
+- Node.js (v16 or higher)
+- MongoDB (local or cloud instance)
+- Google Gemini API key
+
+## Setup Instructions
+
+### 1. Backend Setup
+```bash
+cd backend
+npm install
+cp .env.example .env
+# Edit .env with your MongoDB URI and Gemini API key
+npm run dev
+```
+
+### 2. Frontend Setup
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+## Environment Variables (.env)
+
+### Backend
+```
+MONGODB_URI=mongodb://localhost:27017/interview-prep
+JWT_SECRET=your_jwt_secret_here
+GEMINI_API_KEY=your_gemini_api_key_here
+CORS_ORIGIN=http://localhost:5173
+PORT=9000
+```
+
+## Features
+- User authentication (signup/login)
+- Create interview preparation sessions
+- AI-generated questions based on role and experience
+- Pin/unpin important questions
+- Responsive design with Tailwind CSS
+- Real-time question generation with Gemini AI
+
+## API Endpoints
+- POST /api/auth/signup - User registration
+- POST /api/auth/login - User login
+- POST /api/sessions/create - Create session
+- GET /api/sessions/my-sessions - Get user sessions
+- POST /api/ai/generate-questions - Generate questions
+- PATCH /api/ai/toggle-pin/:questionId - Toggle question pin
+
+## Tech Stack
+- Frontend: React, Vite, Tailwind CSS, React Router
+- Backend: Node.js, Express, MongoDB, JWT
+- AI: Google Gemini API 
