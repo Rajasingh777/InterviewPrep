@@ -24,6 +24,13 @@ const Login = () => {
     try {
       const res = await axiosInstance.post(API_PATHS.AUTH.LOGIN, form);
       localStorage.setItem("token", res.data.token);
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          name: res.data.name || "",
+          email: res.data.email || form.email,
+        }),
+      );
       toast.success("Login successful!");
       setTimeout(() => navigate("/dashboard"), 500);
     } catch (error) {

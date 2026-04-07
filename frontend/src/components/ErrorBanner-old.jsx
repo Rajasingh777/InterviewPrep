@@ -1,6 +1,7 @@
 import { MdRefresh } from "react-icons/md";
 import { TbAlertTriangle } from "react-icons/tb";
 
+// Legacy error banner with optional retry callback.
 const ErrorBanner = ({ message, onRetry }) => (
   <div className="rounded-xl border border-red-200 bg-red-50 p-4 flex items-start justify-between gap-4">
     <div className="flex items-start gap-3">

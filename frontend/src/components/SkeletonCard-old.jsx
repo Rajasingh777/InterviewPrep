@@ -1,3 +1,4 @@
+// Legacy loading skeleton card used before animated variant.
 const SkeletonCard = () => (
   <div className="rounded-xl border border-slate-200 bg-white p-5 space-y-3 animate-pulse shadow-sm">
     <div className="flex items-center gap-2">

@@ -3,6 +3,7 @@ import { ImSpinner8 } from "react-icons/im";
 import { TbBulb } from "react-icons/tb";
 import { motion } from "framer-motion";
 
+// Placeholder view shown when a session has no generated questions yet.
 const EmptyState = ({ onGenerate, generating }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
@@ -10,6 +11,7 @@ const EmptyState = ({ onGenerate, generating }) => (
     transition={{ duration: 0.5 }}
     className="flex flex-col items-center justify-center py-20 gap-6 text-center"
   >
+    {/* Decorative animated icon to make the empty state feel lively */}
     <motion.div
       animate={{
         scale: [1, 1.1, 1],
@@ -43,6 +45,7 @@ const EmptyState = ({ onGenerate, generating }) => (
       </p>
     </motion.div>
 
+    {/* Primary action to kick off generation from empty state */}
     <motion.button
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}

@@ -6,6 +6,12 @@ import {
 } from "react-icons/hi";
 import { MdPushPin as Pin, MdOutlinePushPin as PinOff } from "react-icons/md";
 
+/**
+ * Expandable question/answer card.
+ * Props:
+ * - item: question + markdown answer + pin metadata
+ * - onPin: callback to toggle pin state for this item
+ */
 const QAItem = ({ item, onPin }) => {
   const [open, setOpen] = useState(false);
 
@@ -53,6 +59,7 @@ const QAItem = ({ item, onPin }) => {
       </div>
 
       {open && (
+        // Answer content is rendered from markdown with custom typography mapping.
         <div className="px-6 pb-6 border-t border-slate-100">
           <div className="pt-4">
             <div className="prose prose-slate max-w-none">

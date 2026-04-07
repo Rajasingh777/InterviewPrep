@@ -2,6 +2,7 @@ import { BsLightningChargeFill } from "react-icons/bs";
 import { ImSpinner8 } from "react-icons/im";
 import { TbBulb } from "react-icons/tb";
 
+// Legacy empty state shown when no questions are present.
 const EmptyState = ({ onGenerate, generating }) => (
   <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
     <div className="w-14 h-14 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center">

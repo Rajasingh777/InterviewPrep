@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 
+// Loading placeholder card shown while question content is being fetched/generated.
 const SkeletonCard = () => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}

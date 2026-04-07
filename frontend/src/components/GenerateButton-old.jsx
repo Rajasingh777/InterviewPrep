@@ -1,6 +1,7 @@
 import { BsLightningChargeFill } from "react-icons/bs";
 import { ImSpinner8 } from "react-icons/im";
 
+// Legacy compact generate button (kept for reference/rollback).
 const GenerateButton = ({ onClick, generating, loading }) => (
   <button
     onClick={onClick}

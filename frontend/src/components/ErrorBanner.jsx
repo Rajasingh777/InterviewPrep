@@ -2,6 +2,7 @@ import { MdRefresh } from "react-icons/md";
 import { TbAlertTriangle } from "react-icons/tb";
 import { motion } from "framer-motion";
 
+// Standard error UI for question-loading failures, with optional retry action.
 const ErrorBanner = ({ message, onRetry }) => (
   <motion.div
     initial={{ opacity: 0, x: -20 }}

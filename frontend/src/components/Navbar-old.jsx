@@ -5,6 +5,7 @@ import { FaUser as User } from "react-icons/fa";
 import { AiFillHome as Home } from "react-icons/ai";
 import { BiBookOpen as BookOpen } from "react-icons/bi";
 
+// Legacy navbar kept as an older reference implementation.
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -49,6 +50,7 @@ const Navbar = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-6">
+            {/* Route links shown in desktop layout */}
             {filteredNavItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -69,6 +71,7 @@ const Navbar = () => {
             })}
 
             {isLoggedIn ? (
+              // Logged-in actions for legacy navbar.
               <div className="flex items-center gap-3 ml-4 pl-4 border-l border-slate-200">
                 <div className="flex items-center gap-2 text-sm text-slate-600">
                   <User className="w-4 h-4" />
@@ -83,6 +86,7 @@ const Navbar = () => {
                 </button>
               </div>
             ) : (
+              // Guest actions for legacy navbar.
               <div className="flex items-center gap-3 ml-4 pl-4 border-l border-slate-200">
                 <Link
                   to="/login"

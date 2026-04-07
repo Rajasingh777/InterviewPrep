@@ -1,37 +1,95 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import {
   HiMenu as Menu,
   HiX as X,
   HiLogout as LogOut,
   HiChevronDown,
+  HiUserCircle,
 } from "react-icons/hi";
-import { FaUser as User } from "react-icons/fa";
 import { AiFillHome as Home } from "react-icons/ai";
 import { BiBookOpen as BookOpen } from "react-icons/bi";
 import { motion, AnimatePresence } from "framer-motion";
 
+/**
+ * Main top navigation used across the app.
+ * Handles auth-aware links, desktop/mobile menus, and user profile dropdown.
+ */
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const profileMenuRef = useRef(null);
 
   const isLoggedIn = !!localStorage.getItem("token");
 
-  // Add scroll effect
+  // Read persisted user details saved at login and provide safe fallbacks.
+  const user = useMemo(() => {
+    try {
+      const parsedUser = JSON.parse(localStorage.getItem("user") || "{}");
+      return {
+        name: parsedUser?.name || "Interview Learner",
+        email: parsedUser?.email || "",
+      };
+    } catch {
+      return {
+        name: "Interview Learner",
+        email: "",
+      };
+    }
+  }, [location.pathname]);
+
+  const userInitials = useMemo(() => {
+    const baseText = user.name || user.email || "U";
+    const words = baseText.trim().split(/\s+/).filter(Boolean);
+
+    if (words.length >= 2) {
+      return `${words[0][0]}${words[1][0]}`.toUpperCase();
+    }
+
+    return baseText.slice(0, 2).toUpperCase();
+  }, [user.name, user.email]);
+
   useEffect(() => {
+    // Add subtle navbar style change once page is scrolled.
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
     };
+
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    // Close transient menus when route changes.
+    setIsOpen(false);
+    setIsProfileMenuOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    // Close profile dropdown when clicking anywhere outside it.
+    const handleClickOutside = (event) => {
+      if (
+        profileMenuRef.current &&
+        !profileMenuRef.current.contains(event.target)
+      ) {
+        setIsProfileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const handleLogout = () => {
+    // Clear session data and return to landing page.
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     navigate("/");
     setIsOpen(false);
+    setIsProfileMenuOpen(false);
   };
 
   const navItems = [
@@ -61,7 +119,6 @@ const Navbar = () => {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo */}
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <Link
               to="/"
@@ -80,11 +137,12 @@ const Navbar = () => {
             </Link>
           </motion.div>
 
-          {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-2">
+            {/* Primary desktop navigation links */}
             {filteredNavItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
+
               return (
                 <motion.div
                   key={item.path}
@@ -107,30 +165,83 @@ const Navbar = () => {
             })}
 
             {isLoggedIn ? (
-              <div className="flex items-center gap-3 ml-6 pl-6 border-l border-slate-200">
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
+              // Logged-in desktop profile block and actions menu.
+              <div
+                ref={profileMenuRef}
+                className="relative flex items-center gap-3 ml-6 pl-6 border-l border-slate-200"
+              >
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setIsProfileMenuOpen((prev) => !prev)}
                   className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-slate-100 cursor-pointer transition-colors"
                 >
-                  <div className="w-8 h-8 bg-gradient-to-br from-slate-600 to-slate-800 rounded-full flex items-center justify-center">
-                    <User className="w-4 h-4 text-white" />
+                  <div className="w-9 h-9 bg-gradient-to-br from-slate-700 to-slate-900 rounded-full flex items-center justify-center text-white text-xs font-semibold">
+                    {userInitials}
                   </div>
-                  <span className="text-sm font-medium text-slate-700">
-                    Profile
-                  </span>
-                  <HiChevronDown className="w-4 h-4 text-slate-500" />
-                </motion.div>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleLogout}
-                  className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-red-600 hover:text-white hover:bg-red-600 rounded-xl transition-all duration-200 border border-red-200 hover:border-red-600"
-                >
-                  <LogOut className="w-4 h-4" />
-                  Logout
+                  <div className="text-left leading-tight max-w-[140px]">
+                    <p className="text-sm font-semibold text-slate-800 truncate">
+                      {user.name}
+                    </p>
+                    <p className="text-xs text-slate-500 truncate">
+                      {user.email || "Signed in"}
+                    </p>
+                  </div>
+                  <HiChevronDown
+                    className={`w-4 h-4 text-slate-500 transition-transform duration-200 ${
+                      isProfileMenuOpen ? "rotate-180" : ""
+                    }`}
+                  />
                 </motion.button>
+
+                <AnimatePresence>
+                  {isProfileMenuOpen && (
+                    // Profile dropdown with quick actions.
+                    <motion.div
+                      initial={{ opacity: 0, y: -8, scale: 0.98 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -8, scale: 0.98 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute top-full right-0 mt-3 w-72 bg-white border border-slate-200 rounded-2xl shadow-2xl p-3 z-50"
+                    >
+                      <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                        <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center text-white text-sm font-semibold">
+                          {userInitials}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-slate-800 truncate">
+                            {user.name}
+                          </p>
+                          <p className="text-xs text-slate-500 truncate">
+                            {user.email || "No email available"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="mt-3 flex flex-col gap-2">
+                        <Link
+                          to="/dashboard"
+                          onClick={() => setIsProfileMenuOpen(false)}
+                          className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                        >
+                          <HiUserCircle className="w-4 h-4" />
+                          Open Dashboard
+                        </Link>
+                        <button
+                          onClick={handleLogout}
+                          className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium text-red-600 hover:text-white hover:bg-red-600 transition-colors"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          Logout
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
               </div>
             ) : (
+              // Guest actions for desktop.
               <div className="flex items-center gap-3 ml-6 pl-6 border-l border-slate-200">
                 <motion.div
                   whileHover={{ scale: 1.05 }}
@@ -158,7 +269,6 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Mobile menu button */}
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={() => setIsOpen(!isOpen)}
@@ -177,9 +287,9 @@ const Navbar = () => {
           </motion.button>
         </div>
 
-        {/* Mobile Navigation */}
         <AnimatePresence>
           {isOpen && (
+            // Collapsible mobile navigation panel.
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
@@ -191,6 +301,7 @@ const Navbar = () => {
                 {filteredNavItems.map((item, index) => {
                   const Icon = item.icon;
                   const isActive = location.pathname === item.path;
+
                   return (
                     <motion.div
                       key={item.path}
@@ -215,18 +326,34 @@ const Navbar = () => {
                 })}
 
                 {isLoggedIn ? (
+                  // Logged-in mobile account card + actions.
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
                     className="border-t border-slate-200 pt-4 mt-4 space-y-2"
                   >
-                    <div className="flex items-center gap-3 px-4 py-3 text-sm text-slate-600">
-                      <div className="w-8 h-8 bg-gradient-to-br from-slate-600 to-slate-800 rounded-full flex items-center justify-center">
-                        <User className="w-4 h-4 text-white" />
+                    <div className="mx-1 flex items-center gap-3 px-4 py-3 text-sm text-slate-600 rounded-xl bg-slate-50 border border-slate-100">
+                      <div className="w-10 h-10 bg-gradient-to-br from-slate-700 to-slate-900 rounded-full flex items-center justify-center text-white text-xs font-semibold">
+                        {userInitials}
                       </div>
-                      <span>Profile</span>
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-slate-800 truncate">
+                          {user.name}
+                        </p>
+                        <p className="text-xs text-slate-500 truncate">
+                          {user.email || "Signed in"}
+                        </p>
+                      </div>
                     </div>
+                    <Link
+                      to="/dashboard"
+                      onClick={() => setIsOpen(false)}
+                      className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl"
+                    >
+                      <HiUserCircle className="w-5 h-5" />
+                      Open Dashboard
+                    </Link>
                     <button
                       onClick={handleLogout}
                       className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-600 hover:text-white hover:bg-red-600 rounded-xl transition-all duration-200 w-full text-left"
@@ -236,6 +363,7 @@ const Navbar = () => {
                     </button>
                   </motion.div>
                 ) : (
+                  // Guest actions for mobile.
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
