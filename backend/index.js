@@ -44,6 +44,21 @@ const startServer = async () => {
   app.use("/api/sessions", sessionRoutes);
   app.use("/api/ai", aiRoutes);
 
+  // Root route for deployed backend URL checks
+  app.get("/", (req, res) => {
+    res.status(200).json({
+      status: "OK",
+      message: "NightSpider backend is running",
+      endpoints: {
+        health: "/health",
+        auth: "/api/auth",
+        sessions: "/api/sessions",
+        ai: "/api/ai",
+      },
+      timestamp: new Date().toISOString(),
+    });
+  });
+
   // Health check
   app.get("/health", (req, res) =>
     res.status(200).json({ status: "OK", timestamp: new Date().toISOString() }),
