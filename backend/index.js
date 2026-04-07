@@ -17,6 +17,23 @@ dotenv.config();
 
 const app = express();
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  process.env.FRONTEND_URL,
+  process.env.FRONTEND_URL_2,
+]
+  .filter(Boolean)
+  .map((origin) => origin.trim().replace(/\/+$/, ""));
+
+const isAllowedOrigin = (origin) => {
+  if (!origin) return true; // allow non-browser clients (curl/postman/server-to-server)
+  const normalizedOrigin = origin.trim().replace(/\/+$/, "");
+  return (
+    allowedOrigins.includes(normalizedOrigin) ||
+    normalizedOrigin.endsWith(".vercel.app")
+  );
+};
+
 // Connect to MongoDB
 const startServer = async () => {
   try {
@@ -30,7 +47,10 @@ const startServer = async () => {
   // Middleware
   app.use(
     cors({
-      origin: ["http://localhost:5173"],
+      origin: (origin, callback) => {
+        if (isAllowedOrigin(origin)) return callback(null, true);
+        return callback(new Error(`CORS blocked for origin: ${origin}`));
+      },
       credentials: true,
       optionsSuccessStatus: 200,
     }),

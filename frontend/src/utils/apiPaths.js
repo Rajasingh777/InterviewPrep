@@ -1,5 +1,9 @@
-const BASE_URL =
-  `${import.meta.env.VITE_API_BASE_URL}/api` || "http://localhost:9000/api";
+const rawApiBaseUrl =
+  import.meta.env.VITE_API_BASE_URL?.trim() || "http://localhost:9000";
+
+// Avoid malformed URLs like https://host.com//api when env has trailing slash.
+const normalizedApiBaseUrl = rawApiBaseUrl.replace(/\/+$/, "");
+const BASE_URL = `${normalizedApiBaseUrl}/api`;
 
 export const API_PATHS = {
   AUTH: {
